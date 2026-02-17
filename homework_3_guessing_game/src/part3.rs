@@ -1,4 +1,4 @@
-use crate::player::PlayerTrait;
+use crate::player::{self, PlayerTrait};
 
 pub struct SimulatedPlayer {
     the_number: u32,
@@ -17,7 +17,13 @@ impl PlayerTrait for SimulatedPlayer {
      * The function should return false otherwise.
      */
     fn ask_if_equal(&mut self, guess: u32) -> bool {
-        todo!("you did not provide your part 3 solution yet!")
+        
+        if guess == self.the_number {
+            return true; // because dur
+        }
+        else {
+            return false;
+        }
     }
     /**
      * This function compares the guess to the number that the player has in mind.
@@ -27,7 +33,16 @@ impl PlayerTrait for SimulatedPlayer {
      * 1 if the number > guess
      */
     fn ask_to_compare(&mut self, guess: u32) -> i32 {
-        todo!("you did not provide your part 3 solution yet!")
+       
+        if guess == self.the_number {
+            return 0;
+        }
+        if guess > self.the_number {
+            return -1;
+        }
+        else { // aka if guess < self.the_number
+            return 1;
+        }
     }
 }
 
@@ -114,10 +129,11 @@ mod bad_strategy_tests {
     }
 
     #[test]
+    #[should_panic]
     fn a_different_number() {
         let min = 0;
         let max = 100;
-        let number = todo!("`the_min` and `the_max` are not enough: the `BadStrategy` satisfies them, even though it is wrong. Add your own test that demonstrate that BadStrategy does not work!");
+        let number = 7; // not sure if this is what you meant implementing "missing logic", but fear not the test still fails
 
         // We create a simulated player
         let mut player = Player::new(SimulatedPlayer::new(number));
@@ -142,16 +158,41 @@ mod part2_tests {
     // Look at part1_tests for inspiration.
     #[test]
     fn the_min() {
-        todo!("add your tests for part2");
+        let min = 0; // kept the min value because I'm wildly unoriginal
+        let max = 25;
+        let number = min;
+        let max_steps = max/2 + 1; // max steps for a binary search can be solved logathically but that seemed a bit unnecessary for this assignment so I halved the max and added one to be safe since dividing an odd number will cause the decimal to be dropped
+
+        let mut player = Player::new(SimulatedPlayer::new(number)); // simulated player code adopted from part1
+        let answer = Part2::guess_the_number(&mut player, min, max);
+        assert_eq!(answer, number); // answer checker adopted from part1
+        assert!(player.steps() <= max_steps); // step checker adapted from part1
     }
 
     #[test]
     fn the_max() {
-        todo!("add your tests for part2");
+        let min = 0; // kept the min value because I'm wildly unoriginal
+        let max = 25;
+        let number = max - 1;
+        let max_steps = max/2 + 1; // max steps for a binary search can be solved logathically but that seemed a bit unnecessary for this assignment so I halved the max and added one to be safe since dividing an odd number will cause the decimal to be dropped
+        let mut player = Player::new(SimulatedPlayer::new(number)); // simulated player code adopted from part1
+        let answer = Part2::guess_the_number(&mut player, min, max);
+        assert_eq!(answer, number); // answer checker adopted from part1
+        assert!(player.steps() <= max_steps); // step checker adapted from part1
     }
 
     #[test]
     fn a_different_number() {
-        todo!("Add your tests for part2!");
+        let min = 0; // kept the min value because I'm wildly unoriginal
+        let max = 25;
+        let number = 13;
+        let max_steps = max/2 + 1; // max steps for a binary search can be solved logathically but that seemed a bit unnecessary for this assignment so I halved the max and added one to be safe since dividing an odd number will cause the decimal to be dropped
+        
+        let mut player = Player::new(SimulatedPlayer::new(number)); // simulated player code adopted from part1
+        let answer = Part2::guess_the_number(&mut player, min, max);
+        assert_eq!(answer, number); // answer checker adopted from part1
+        assert!(player.steps() <= max_steps); // step checker adapted from part1
     }
+
 }
+
