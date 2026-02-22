@@ -64,20 +64,19 @@ impl<T> SlowVec<T> {
     }
 
     // Student 2: Provide your solution here
-    pub fn remove(&mut self, i: usize) -> T {
-     let old_len = self.len();
-    assert!(i < old_len, "Index out of bounds");
+pub fn remove(&mut self, index: usize) -> T {
+    let old_len = self.fixed.len();
+    assert!(index < old_len, "Index out of bounds");
+
+    let removed = self.fixed.move_out(index);
 
     let mut tmp = FixedSizeArray::allocate(old_len - 1);
 
-    let removed = self.fixed.move_out(i);
-
-    for j in 0..old_len {
-        if j < i {
-            tmp.put(self.fixed.move_out(j), j);
-        } else if j > i {
-            tmp.put(self.fixed.move_out(j), j - 1);
-        }
+    for i in 0..index {
+        tmp.put(self.fixed.get(i).clone(), i);
+    }
+    for i in (index + 1)..old_len {
+        tmp.put(self.fixed.get(i).clone(), i - 1);
     }
 
     self.fixed = tmp;
@@ -85,6 +84,7 @@ impl<T> SlowVec<T> {
     removed
 }
 }
+
 
 
 // This allows us to print the SlowVec using println!().
