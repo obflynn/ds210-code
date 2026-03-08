@@ -61,48 +61,43 @@ impl<T> FastVec<T> {
     // Student 1 and Student 2 should implement this together
     // Use the project handout as a guide for this part!
     pub fn get(&self, i: usize) -> &T {
-        
-        if i < self.len {
-            unsafe {
-                let val = &*self.ptr_to_data.add(i);
-                return val;
-            }
-        } 
-      else {
-            panic!("FastVec: get out of bounds");
-        }      
+    if i >= self.len {
+        panic!("FastVec: get out of bounds");
     }
 
-    
-// Student 2 should implement this.
+    unsafe {
+        &*self.ptr_to_data.add(i)
+    }
+}
+
+    // Student 2 should implement this.
 pub fn push(&mut self, t: T) {
     unsafe {
         if self.len == self.capacity {
+            // grow the vector by doubling the capacity
+            let new_capacity = if self.capacity == 0 { 1 } else { self.capacity * 2 };
+            let new_ptr = MALLOC.malloc(new_capacity * std::mem::size_of::<T>()) as *mut T;
 
-            let new_capacity = if self.capacity == 0 {
-                1
-            } else {
-                self.capacity * 2
-            };
-
-            let new_ptr =
-                MALLOC.malloc(new_capacity * std::mem::size_of::<T>()) as *mut T;
-
+            // move old elements to new memory
             for i in 0..self.len {
                 let value = std::ptr::read(self.ptr_to_data.add(i));
                 std::ptr::write(new_ptr.add(i), value);
             }
 
+            // free old memory
+            MALLOC.free(self.ptr_to_data as *mut u8);
+
             self.ptr_to_data = new_ptr;
             self.capacity = new_capacity;
         }
 
+        // write the new element
         std::ptr::write(self.ptr_to_data.add(self.len), t);
         self.len += 1;
     }
 }
 
-    //Student 1 should implement this.
+   //Student 1 should implement this.
     pub fn remove(&mut self, i: usize) {
        
         if i >= self.len { // checks if element to be removed is out of bounds
@@ -119,17 +114,19 @@ pub fn push(&mut self, t: T) {
                 }
                 self.len = self.len - 1; // decrease vector's length by 1 w/o resizing the vector's memory --> brought to you by AI --> I don't really understand the purpose of this line but unfortunately the code fails the remove test w/o it 
             }
-        }        
+
+        }
+               
     } 
 
     // This appears correct but with further testing, you will notice it has a bug!
     // Student 1 and 2 should attempt to find and fix this bug.
     // Hint: check out case 2 in memory.rs, which you can run using
     //       cargo run --bin memory
-    pub fn clear(&mut self) { // according to the internet self can only be called inside an impl block
-        for i in 0..self.len { // loop over each element in the vector & _discard
+    pub fn clear(&mut self) { 
+        for i in 0..self.len { // loop over each element in the vector 
             unsafe {
-                let _discard = ptr::read(self.ptr_to_data.add(i)); // re-running this bad boy to free each element's memory before its release (deallocated) into the cosmos by MALLOC.free()
+                ptr::read(self.ptr_to_data.add(i)); // read value at this pointer position so it gets dropped
             }
         }
         MALLOC.free(self.ptr_to_data as *mut u8);
@@ -137,7 +134,7 @@ pub fn push(&mut self, t: T) {
         self.len = 0;
         self.capacity = 0;
     }
-} // moved the closing curly bracket to include the clear function in the impl<T> FastVec<T> block
+} 
 
 // Destructor should clear the fast_vec to avoid leaking memory.
 impl<T> Drop for FastVec<T> {
