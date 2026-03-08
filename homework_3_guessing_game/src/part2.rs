@@ -28,3 +28,4 @@ impl Strategy for Part2 {
         return 00000; // return value added to satisfy the return type since program will throw an error w/o it
     }
 }
+
