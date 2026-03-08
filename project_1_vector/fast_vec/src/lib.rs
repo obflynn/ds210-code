@@ -102,18 +102,19 @@ impl<T> FastVec<T> {
         }
                
     } 
+}
 
     // This appears correct but with further testing, you will notice it has a bug!
     // Student 1 and 2 should attempt to find and fix this bug.
     // Hint: check out case 2 in memory.rs, which you can run using
     //       cargo run --bin memory
-    pub fn clear(&mut self) { // according to the internet self can only be called inside an implementation block
+    pub fn clear(&mut self) { // according to the internet self can only be called inside an impl block
         MALLOC.free(self.ptr_to_data as *mut u8);
         self.ptr_to_data = null_mut();
         self.len = 0;
         self.capacity = 0;
     }
-} // moving the curly bracket to include the clear function in the impl<T> FastVec<T> block allows self to be called
+
 
 // Destructor should clear the fast_vec to avoid leaking memory.
 impl<T> Drop for FastVec<T> {
