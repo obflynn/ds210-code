@@ -112,31 +112,32 @@ pub fn push(&mut self, t: T) {
             unsafe{
                 let _discard = ptr::read(self.ptr_to_data.add(i)); // read the ith element to free its memory
                 
-                for j in i..self.len-1 { // loop to move all elements (after the discarded element) left by 1 position
+                for j in i..self.len-1 { // loop to move all elements after i (the discarded element) left by 1 position
                     let ptr_j = self.ptr_to_data.add(j); // pointer to the jth element 
                     let ptr_j_plus_1 = self.ptr_to_data.add(j+1); // pointer to the j+1 element 
-                    ptr::write(ptr_j, ptr::read(ptr_j_plus_1)); // move the j+1 element to the jth position & free memory occupied by the j+1 element
+                    ptr::write(ptr_j, ptr::read(ptr_j_plus_1)); // move the j+1 element to the jth position, free memory occupied by the j+1 element, & restart loop
                 }
-                
-                self.len = self.len - 1; // decrease vector length by 1 --> idk why this is required but the code fails the remove_numbers test w/o it
+                self.len = self.len - 1; // decrease vector's length by 1 w/o resizing the vector's memory --> brought to you by AI --> I don't really understand the purpose of this line but unfortunately the code fails the remove test w/o it 
             }
-
-        }
-               
+        }        
     } 
-}
 
     // This appears correct but with further testing, you will notice it has a bug!
     // Student 1 and 2 should attempt to find and fix this bug.
     // Hint: check out case 2 in memory.rs, which you can run using
     //       cargo run --bin memory
     pub fn clear(&mut self) { // according to the internet self can only be called inside an impl block
+        for i in 0..self.len { // loop over each element in the vector & _discard
+            unsafe {
+                let _discard = ptr::read(self.ptr_to_data.add(i)); // re-running this bad boy to free each element's memory before its release (deallocated) into the cosmos by MALLOC.free()
+            }
+        }
         MALLOC.free(self.ptr_to_data as *mut u8);
         self.ptr_to_data = null_mut();
         self.len = 0;
         self.capacity = 0;
     }
-
+} // moved the closing curly bracket to include the clear function in the impl<T> FastVec<T> block
 
 // Destructor should clear the fast_vec to avoid leaking memory.
 impl<T> Drop for FastVec<T> {
