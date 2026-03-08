@@ -61,7 +61,14 @@ impl<T> FastVec<T> {
     // Student 1 and Student 2 should implement this together
     // Use the project handout as a guide for this part!
     pub fn get(&self, i: usize) -> &T {
-        todo!("implement get!");
+        if i < self.len {
+            unsafe {
+                let val = &*self.ptr_to_data.add(i);
+                return val;
+            }
+        } else {
+            panic!("FastVec: get out of bounds");
+        }       
     }
 
     // Student 2 should implement this.
@@ -75,20 +82,38 @@ impl<T> FastVec<T> {
 
     // Student 1 should implement this.
     pub fn remove(&mut self, i: usize) {
-        todo!("implement remove");
-    }
+       
+        if i >= self.len { // checks if element to be removed is out of bounds
+            panic!("FastVec: remove out of bounds");
+        } 
+        else { 
+            unsafe{
+                let _discard = ptr::read(self.ptr_to_data.add(i)); // read the ith element to free its memory
+                
+                for j in i..self.len-1 { // loop to move all elements (after the discarded element) left by 1 position
+                    let ptr_j = self.ptr_to_data.add(j); // pointer to the jth element 
+                    let ptr_j_plus_1 = self.ptr_to_data.add(j+1); // pointer to the j+1 element 
+                    ptr::write(ptr_j, ptr::read(ptr_j_plus_1)); // move the j+1 element to the jth position & free memory occupied by the j+1 element
+                }
+                
+                self.len = self.len - 1; // decrease vector length by 1 --> idk why this is required but the code fails the remove_numbers test w/o it
+            }
+
+        }
+               
+    } 
 
     // This appears correct but with further testing, you will notice it has a bug!
     // Student 1 and 2 should attempt to find and fix this bug.
     // Hint: check out case 2 in memory.rs, which you can run using
     //       cargo run --bin memory
-    pub fn clear(&mut self) {
+    pub fn clear(&mut self) { // according to the internet self can only be called inside an implementation block
         MALLOC.free(self.ptr_to_data as *mut u8);
         self.ptr_to_data = null_mut();
         self.len = 0;
         self.capacity = 0;
     }
-}
+} // moving the curly bracket to include the clear function in the impl<T> FastVec<T> block allows self to be called
 
 // Destructor should clear the fast_vec to avoid leaking memory.
 impl<T> Drop for FastVec<T> {
