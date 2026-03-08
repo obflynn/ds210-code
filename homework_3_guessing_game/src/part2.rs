@@ -3,24 +3,29 @@ use crate::strategies::Strategy;
 
 pub struct Part2 {}
 
-// Terrible strategy: ask if the number is min, otherwise return max.
 impl Strategy for Part2 {
     fn guess_the_number(player: &mut Player, min: u32, max: u32) -> u32 {
-        let mut high = max - 1;
-        let mut low = min;
-        
-        while low < high{
-            let mid = (low + high) / 2;
+        let mut low_val = min;
+        let mut high_val = max;
+
+        while low_val < high_val { // while loop suggested by darling ChatGPT since the program would only go through one iteration w/o it and I counldn't figure out why
+            let next_guess: u32 = (low_val + high_val)/2;
+            let binary_boothang = player.ask_to_compare(next_guess);
             
-            match player.ask_to_compare(mid){
-            1 => low = mid + 1,
-            0 => return mid,
-            -1 => high = mid -1,
-            _ => panic!("No solution provided yet")
-               }
+            if binary_boothang == 0 { 
+                return next_guess; // user entered "e"
+            }
+
+            else if binary_boothang == -1 { // originally had this as 1, but for reasons that perplex me that was incorrect and caused the next guess a number greater than the previous one
+                high_val = next_guess - 1; // user entered "l"
+            }
+
+            else if binary_boothang == 1 { // originally had this as -1, but for reasons that perplex me that was incorrect and caused the next guess a number less than the previous one
+                low_val = next_guess + 1; // user entered "g"
+            }
         }
 
-        low
+        return 00000; // return value added to satisfy the return type since program will throw an error w/o it
     }
 }
 
