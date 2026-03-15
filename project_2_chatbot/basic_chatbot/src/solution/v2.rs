@@ -10,6 +10,7 @@ impl ChatbotV2 {
     pub fn new(model: Llama) -> ChatbotV2 {
         let chat_session = model
             .chat();
+        
 
         return ChatbotV2 {
             chat_session
@@ -21,11 +22,10 @@ impl ChatbotV2 {
           // send the message to the bot
     let output = self.chat_session.add_message(message).await;
 
-    //get the response
+    //get the response if there's no error
     if let Ok(response) = output {
         return response;
     }
-
         return String::from("Hello, I am not a bot (yet)!");
     }
 }
