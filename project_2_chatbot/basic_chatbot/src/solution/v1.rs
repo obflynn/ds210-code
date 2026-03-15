@@ -1,4 +1,4 @@
-use kalosm::language::*;
+use kalosm::language::*; // kalosm is an async library
 
 #[allow(dead_code)]
 pub struct ChatbotV1 {
