@@ -11,17 +11,21 @@ impl ChatbotV1 {
         return ChatbotV1 { model: model };
     }
 
-    #[allow(dead_code)]
-    pub async fn chat_with_user(&mut self, message: String) -> String {
-        let mut chat_session: Chat<Llama> = self.model
-            .chat()
-            .with_system_prompt("The assistant will act like a pirate");
+#[allow(dead_code)]
+pub async fn chat_with_user(&mut self, message: String) -> String {
+    //creates a new chat session from the model
+    let mut chat_session: Chat<Llama> = self.model
+        .chat()
+        // prompt
+        .with_system_prompt("The assistant will act like a pirate");
+    // send the user's message to the chat session
+    let asynchronous_output = chat_session.add_message(message);
+    let output = asynchronous_output.await;
 
-        // You need to add your code here
-        // You must find a way to add the given message to the chat_session!
-        // consider https://docs.rs/kalosm/0.4.0/kalosm/language/struct.Chat.html#method.add_message
-        // Hint: make sure you transform/extract the response message as a **String**.
-
-        return String::from("Hello, I am not a bot (yet)!");
+    // use match to handle the result returned from the model
+    match output {
+        Ok(response) => response,
+        Err(_) => String::from("Error: could not get response from model"),
     }
+}
 }
