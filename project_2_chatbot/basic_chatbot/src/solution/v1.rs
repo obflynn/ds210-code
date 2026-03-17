@@ -29,3 +29,4 @@ pub async fn chat_with_user(&mut self, message: String) -> String {
     }
 }
 }
+ 

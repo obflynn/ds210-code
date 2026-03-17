@@ -6,7 +6,6 @@ pub struct ChatbotV3 {
     model: Llama, 
     sessions: HashMap<String, Chat<Llama>>, 
 }
-
 impl ChatbotV3 {
     #[allow(dead_code)]
     pub fn new(model: Llama) -> ChatbotV3 {
@@ -14,6 +13,7 @@ impl ChatbotV3 {
             model: model, sessions: HashMap::new() // initialize HashMap to store chat session data for each user
         };
     }
+
 
     #[allow(dead_code)]
     pub async fn chat_with_user(&mut self, username: String, message: String) -> String {
@@ -37,5 +37,24 @@ impl ChatbotV3 {
                 Err(_) => return String::from("Error! Model couldn't generate response"),
             }
         }
+    }
+
+    pub fn get_history(&self, username: String) -> Vec<String> {
+     if let Some(chat) = self.sessions.get(&username) {
+
+        if let Ok(session) = chat.session() {
+
+            let history = session.history();
+
+            let mut messages = Vec::new();
+
+            for msg in history {
+                messages.push(format!("{:?}", msg));
+            }
+
+            return messages;
+        }
+    }
+        return Vec::new();
     }
 }
