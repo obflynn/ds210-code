@@ -42,19 +42,24 @@ impl ChatbotV3 {
     pub fn get_history(&self, username: String) -> Vec<String> {
      if let Some(chat) = self.sessions.get(&username) {
 
+        // session() returns Result --> must match on it
         if let Ok(session) = chat.session() {
 
+            // history() returns Vec<ChatMessage>
             let history = session.history();
 
-            let mut messages = Vec::new();
+            let mut messages: Vec<String> = Vec::new();
 
+            // iterate through ChatMessage
             for msg in history {
-                messages.push(format!("{:?}", msg));
+                messages.push(msg.content().to_string());
             }
 
+            println!("{:?}", messages); 
             return messages;
         }
     }
-        return Vec::new();
-    }
+
+    Vec::new()
 }
+} 
