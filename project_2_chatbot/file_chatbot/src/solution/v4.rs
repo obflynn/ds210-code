@@ -25,7 +25,7 @@ impl ChatbotV4 {
             Ok(response) => { // match statement 2: if the model is able to generate a response, check if the user has an existing chat session file so the current chat session can be added
                 match file_library::load_chat_session_from_file(&filename) { // check if user has an existing chat session file
                     Some(session) => { // if the user has a chat session file, save the current chat session to that file
-                        file_library::save_chat_session_to_file(filename, &session); 
+                        save_chat_session_to_file(filename, &session); 
                     }
                     None => { // report that no chat session file exists for the user
                         return String::from("No chat history found for user!");
@@ -46,7 +46,7 @@ impl ChatbotV4 {
         Some(session) => {
             session
                 .history()
-                .iter()
+                .iter() 
                 .map(|msg| msg.content().to_string())
                 .collect()
         }
