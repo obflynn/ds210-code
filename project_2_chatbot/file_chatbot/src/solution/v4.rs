@@ -20,27 +20,34 @@ impl ChatbotV4 {
                 .chat()
                 .with_system_prompt("The assistant will act like a pirate");
             
-            //let mut output = chat_session.add_message(message).await;
-            
-            if let Some(session) = file_library::load_chat_session_from_file(&filename) {
-                let mut tmp = chat_session.with_session(session);
-                let ouput = tmp.add_message(message).await.unwrap();
-                
-                let sesh = tmp.session().unwrap();
-                file_library::save_chat_session_to_file(filename, &sesh);
-
-                return ouput;
-
-            }
-            else {
-                let output = chat_session.add_message(message).await.unwrap();
+            if let Some(session) = file_library::load_chat_session_from_file(&filename) { 
+                chat_session = chat_session.with_session(session); 
+                let output = chat_session.add_message(message).await.unwrap(); 
                 let sesh = chat_session.session().unwrap();
-                file_library::save_chat_session_to_file(filename, &sesh);
-                
+                //let sesh_bytes = sesh.to_bytes().unwrap(); 
+                save_chat_session_to_file(filename, &sesh); 
+                return output; 
+            } 
+            else { 
+                let output = chat_session.add_message(message).await.unwrap(); 
+                let sesh = chat_session.session().unwrap(); 
+                save_chat_session_to_file(filename, &sesh); 
                 return output;
-                
             }
-            /*
+    }
+
+
+/*  Other attempts to implement a functional chat_with_user
+
+            if let Some(session) = file_library::load_chat_session_from_file(&filename) {
+                chat_session = chat_session.with_session(session);
+            }
+            let output = chat_session.add_message(message).await.unwrap();  
+            if let Ok(sesh) = chat_session.session() {
+                save_chat_session_to_file(filename, &sesh);
+            }
+            output
+
         let output = chat_session.add_message(message).await; // model generates response to user message
         let session = chat_session.session().unwrap(); // brought to you by AI -> unwrap the chat session data from the chat session object
 
@@ -65,9 +72,9 @@ impl ChatbotV4 {
                return response; // return the model generated response to user
             },
             Err(_) => return String::from("Hello, I am not a bot (yet)!"),
-        }*/
-        //return String::from("Hello, I am not a bot (yet)!"); // placeholder response until the above code is debugged and working
-    }
+        }
+*/
+    
 
     pub fn get_history(&self, username: String) -> Vec<String> {
     let filename = &format!("{}.txt", username);
@@ -80,7 +87,7 @@ impl ChatbotV4 {
                 .iter() 
                 .map(|msg| msg.content().to_string())
                 .collect()
+            }
         }
     }
-}
 }
