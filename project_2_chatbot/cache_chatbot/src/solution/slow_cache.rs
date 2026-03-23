@@ -32,8 +32,11 @@ impl<V> Cache<V> {
 
     // Helper functions.
     fn remove_least_recently_used(&mut self) {
-        // TODO: your code goes here.
-        // println!("Removing least recently used");
+        let index_of_lru = self.usage_history.len() - 1; // the LRU chat is should be the last element in usage_history
+        let remove_lru = self.usage_history.remove(index_of_lru); // remove the LRU chat from usage_history
+        self.hashmap.remove(&remove_lru); // remove the LRU chat from the cache
+
+        println!("Removing least recently used");
     }
     fn mark_as_most_recently_used(&mut self, username: String) {
         // TODO: your code goes here.
