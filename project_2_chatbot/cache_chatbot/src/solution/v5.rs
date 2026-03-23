@@ -1,6 +1,5 @@
 use kalosm::language::*;
-use file_chatbot::solution::file_library;
-
+use file_chatbot::solution::file_library::{load_chat_session_from_file, save_chat_session_to_file};
 use crate::solution::Cache;
 
 pub struct ChatbotV5 {
@@ -10,51 +9,81 @@ pub struct ChatbotV5 {
 
 impl ChatbotV5 {
     pub fn new(model: Llama) -> ChatbotV5 {
-        return ChatbotV5 {
-            model: model,
+        ChatbotV5 {
+            model,
             cache: Cache::new(3),
-        };
+        }
     }
 
     pub async fn chat_with_user(&mut self, username: String, message: String) -> String {
-        let filename = &format!("{}.txt", username);
-        let cached_chat = self.cache.get_chat(&username);
+        println!("chat_with_user called for {username}");
 
-        match cached_chat {
+        let cached = self.cache.get_chat(&username);
+
+        let mut chat_session = match cached {
+            Some(session) => {
+                println!("Found in cache for user {username}");
+                session.clone()
+            }
             None => {
-                println!("chat_with_user: {username} is not in the cache!");
-                // The cache does not have the chat. What should you do?
-                return String::from("Hello, I am not a bot (yet)!");
+                 println!("Not in cache for user {username}, loading from file or starting new session");
+                match load_chat_session_from_file(&username) {
+                    Some(session) => Chat::new(self.model.clone()).with_session(session),
+                    None => Chat::new(self.model.clone())
+                        .with_system_prompt("The assistant will act like a pirate"),
+                }
             }
-            Some(chat_session) => {
-                println!("chat_with_user: {username} is in the cache! Nice!");
-                // The cache has this chat. What should you do?
-                return String::from("Hello, I am not a bot (yet)!");
+        };
 
-            }
-        }
+        // generate response
+        let output = chat_session.add_message(message).await;
+        let response = match output {
+            Ok(text) => text,
+            Err(_) => "Hmm, I have no answer.".to_string(),
+        };
+
+        // update cache
+        self.cache.insert_chat(username.clone(), chat_session.clone());
+
+        // save to file
+        let session = chat_session.session().unwrap().clone();
+        save_chat_session_to_file(&username, &session);
+
+        response
     }
 
     pub fn get_history(&mut self, username: String) -> Vec<String> {
-        let filename = &format!("{}.txt", username);
-        let cached_chat = self.cache.get_chat(&username);
+        println!("get_history called for {username}");
 
-        match cached_chat {
-            None => { 
-                println!("get_history: {username} is not in the cache!");
-                self.cache.insert_chat(username, self.model.chat()); // if the user doesn't have a chat session in the cache, then create one and insert it into the cache
-                return Vec::new(); // if the user doesn't have a chat session in the cache, then they don't have any chat history, so return an empty vector
+        let cached = self.cache.get_chat(&username);
+
+        let chat_session = match cached {
+            Some(session) => {
+                println!("Found in cache for user {username}");
+                session.clone()
             }
-            Some(chat_session) => {
-                println!("get_history: {username} is in the cache! Nice!");
-                let history = chat_session.session().unwrap().history(); // 
-                
-                let mut messages: Vec<String> = Vec::new(); // vector to store each chat message in user's history 
-                for msg_i in history { // iterate through chats in history 
-                    messages.push(msg_i.content().to_string()); // push the content of each chat into the messages vector
+            None => {
+                println!("Not in cache for user {username}, loading from file or starting new session");
+                match load_chat_session_from_file(&username) {
+                    Some(session) => Chat::new(self.model.clone()).with_session(session),
+                    None => Chat::new(self.model.clone())
+                        .with_system_prompt("The assistant will act like a pirate"),
                 }
-                return messages; // final returned item is a vector of strings (aka user's chat history)
             }
-        }
+        };
+
+        // update cache
+        self.cache.insert_chat(username.clone(), chat_session.clone());
+
+        // return history (skip system prompt)
+        chat_session
+            .session()
+            .unwrap()
+            .history()
+            .iter()
+            .skip(1)
+            .map(|msg| msg.content().to_string())
+            .collect()
     }
 }
+
