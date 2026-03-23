@@ -78,6 +78,7 @@ impl ChatbotV4 {
             session
                 .history()
                 .iter() 
+                .skip(1) 
                 .map(|msg| msg.content().to_string())
                 .collect()
         }
