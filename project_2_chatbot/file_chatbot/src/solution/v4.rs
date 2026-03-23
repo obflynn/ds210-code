@@ -39,16 +39,17 @@ impl ChatbotV4 {
     }
 
     pub fn get_history(&self, username: String) -> Vec<String> {
-        let filename = &format!("{}.txt", username);
+    let filename = &format!("{}.txt", username);
 
-        match file_library::load_chat_session_from_file(&filename) {
-            None => {
-                return Vec::new();
-            },
-            Some(session) => {
-                // TODO: what should happen here?
-                return Vec::new();
-            }
+    match file_library::load_chat_session_from_file(&filename) {
+        None => Vec::new(),
+        Some(session) => {
+            session
+                .history()
+                .iter()
+                .map(|msg| msg.content().to_string())
+                .collect()
         }
     }
+}
 }
