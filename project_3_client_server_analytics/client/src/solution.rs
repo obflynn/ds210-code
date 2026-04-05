@@ -5,7 +5,7 @@ use tarpc::context::Context;
 pub async fn run_hello(rpc_client: &RPCInterfaceClient) {
     let result = rpc_client.hello(Context::current()).await.unwrap();
     println!("The server says: `{}`", result);
-    
+
 }pub async fn run_slow_rpc(rpc_client: &RPCInterfaceClient, query: Query) -> Dataset {
     println!("using slow_rpc");
 
@@ -20,6 +20,8 @@ pub async fn run_hello(rpc_client: &RPCInterfaceClient) {
 pub async fn run_fast_rpc(rpc_client: &RPCInterfaceClient, query: Query) -> Dataset {
     println!("using fast_rpc");
 
-    // You should call fast_rpc here and not slow_rpc.
-    todo!("Implement this");
+     // call server's fast_rpc,passing the query
+    let result_dataset = rpc_client.fast_rpc(Context::current(), query).await.unwrap();
+t
+    result_dataset
 }
