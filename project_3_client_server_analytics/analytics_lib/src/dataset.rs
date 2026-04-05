@@ -1,13 +1,14 @@
 use std::fmt::{Debug, Display};
+use serde::{Serialize, Deserialize};
 
-#[derive(Clone, PartialEq, Eq, Debug)]
-pub enum ColumnType {
+#[derive(Serialize, Deserialize,Clone, PartialEq, Eq, Debug)]
+pub enum ColumnType { // serialize/deserialize derive added since ColumnType is a field in Dataset, which enables cohesive implementation as it is sent between client and server
     String,
     Integer,
 }
 
-#[derive(Clone, PartialEq, Hash, Eq, Debug, PartialOrd, Ord)]
-pub enum Value {
+#[derive(Serialize, Deserialize, Clone, PartialEq, Hash, Eq, Debug, PartialOrd, Ord)]
+pub enum Value { // serialize/deserialize derive added for the same reason listed above^^
     String(String),
     Integer(i32),
 }
@@ -20,8 +21,8 @@ impl Value {
     }
 }
 
-#[derive(Clone, PartialEq, Eq, PartialOrd, Ord)]
-pub struct Row {
+#[derive(Serialize, Deserialize, Clone, PartialEq, Eq, PartialOrd, Ord)]
+pub struct Row { // serialize/deserialize derive added for the same reason listed above^^
     values: Vec<Value>,
 }
 impl Row {
@@ -38,7 +39,7 @@ impl Row {
         return self.values;
     }
 }
-
+#[derive(Serialize, Deserialize, Clone)]
 pub struct Dataset {
     columns: Vec<(String, ColumnType)>,
     rows: Vec<Row>,
