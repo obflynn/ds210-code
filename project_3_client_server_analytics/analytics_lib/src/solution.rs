@@ -2,6 +2,8 @@ use std::collections::HashMap;
 use crate::dataset::{ColumnType, Dataset, Value, Row}; // 
 use crate::query::{Aggregation, Condition, Query};
 
+
+// Helper function to check if a row satisfies a given condition
 fn row_satisfies_condition(row: &Row, dataset: &Dataset, condition: &Condition) -> bool {
     match condition {
         //check if the value in the column matches the target value
@@ -27,6 +29,7 @@ fn row_satisfies_condition(row: &Row, dataset: &Dataset, condition: &Condition) 
     }
 }
 
+// Filters a dataset based on the given condition and returns a new dataset
 pub fn filter_dataset(dataset: &Dataset, filter: &Condition) -> Dataset {
     let mut filtered = Dataset::new(dataset.columns().clone());
 
@@ -35,11 +38,11 @@ pub fn filter_dataset(dataset: &Dataset, filter: &Condition) -> Dataset {
             filtered.add_row(row.clone()); // clone needed because of ownership
         }
     }
+
     filtered
 }
 
 pub fn group_by_dataset(dataset: Dataset, group_by_column: &String) -> HashMap<Value, Dataset> {
-    
     let mut grouped_datasets: HashMap<Value, Dataset> = HashMap::new(); // new dataset to store group_by_column subset of original dataset
     let column_i = dataset.column_index(group_by_column); // index of the group_by_column in the dataset columns
 
@@ -55,49 +58,54 @@ pub fn group_by_dataset(dataset: Dataset, group_by_column: &String) -> HashMap<V
             .add_row(row.clone()); // copy of the row ref-ed above is added to the subset/dataset
     }
     grouped_datasets
-}
 
-
-pub fn aggregate_dataset(dataset: HashMap<Value, Dataset>, aggregation: &Aggregation) -> HashMap<Value, Value> {
-    let mut results: HashMap<Value, Value> = HashMap::new();
-    // Iterate over each group
+}pub fn aggregate_dataset(dataset: HashMap<Value, Dataset>,aggregation: &Aggregation) -> HashMap<Value, Value> {
+    let mut results = HashMap::new();
     for (group_key, group_dataset) in dataset {
+
+        // figure out what aggregation result to calculate for this group
         let agg_value = match aggregation {
+
+            // count just return the number of rows in this group
             Aggregation::Count(_) => {
-                // Count (the number of rows in this group)
                 Value::Integer(group_dataset.len() as i32)
             }
 
-            Aggregation::Sum(col_name) | Aggregation::Average(col_name) => {
+            //sum add up all integer values in the specified column
+            Aggregation::Sum(col_name) => {
                 let col_index = group_dataset.column_index(col_name);
+                let mut sum = 0;
 
-                // set sum to 0
-                let mut sum: i32 = 0;
-
-                //loop over each row in the group
+                // loop over each row and add the value if it's an integer
                 for row in group_dataset.iter() {
-                    match row.get_value(col_index) {
-                        Value::Integer(n) => sum += *n, //add integer values
-                        _ => (), //ignore non-integer values
+                    if let Value::Integer(n) = row.get_value(col_index) {
+                        sum += *n;
+                    }
+                }
+                Value::Integer(sum)
+            }
+
+            // average, sum the integers then divide by the number of rows
+            Aggregation::Average(col_name) => {
+                let col_index = group_dataset.column_index(col_name);
+                let mut sum = 0;
+
+                for row in group_dataset.iter() {
+                    if let Value::Integer(n) = row.get_value(col_index) {
+                        sum += *n;
                     }
                 }
 
-                // Determine final aggregated value based on aggregation type
-                match aggregation {
-                    Aggregation::Sum(_) => Value::Integer(sum),
-                    Aggregation::Average(_) => {
-                        let count = group_dataset.len();
-                        // Avoid division by zero
-                        if count > 0 {
-                            Value::Integer(sum / count as i32)
-                        } else {
-                            Value::Integer(0)
-                        }
-                    }
-                    _ => panic!("Unexpected aggregation type"),
+                let count = group_dataset.len();
+                if count > 0 {
+                    Value::Integer(sum / count as i32)
+                } else {
+                    Value::Integer(0)
                 }
             }
         };
+
+        // store result in results map
         results.insert(group_key, agg_value);
     }
     results
