@@ -10,7 +10,8 @@ pub fn slow_rpc(input_dataset: &Dataset) -> Dataset {
     input_dataset.clone()
 }
 
-pub fn fast_rpc(input_dataset: &Dataset, query: Query) -> Dataset {
+pub fn fast_rpc(input_dataset: &Dataset, _query: Query) -> Dataset {
     println!("fast_rpc called");
-    todo!("Implement this");
+    // For now, just return a clone of the input dataset (same as slow_rpc)
+    input_dataset.clone()
 }
