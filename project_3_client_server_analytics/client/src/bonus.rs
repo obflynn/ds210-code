@@ -3,12 +3,18 @@ extern crate tarpc;
 use std::time::Instant;
 use std::io::BufRead;
 
-use analytics_lib::query::Query;
+use analytics_lib::query::Query; 
 use client::{start_client, solution};
 
-// Your solution goes here.
-fn parse_query_from_string(input: String) -> Query {
-    todo!("Implement this");
+fn parse_query_from_string(input: String) -> Query { 
+    let query = input.trim().to_string(); // trim whitespace and convert to string since it would otherwise be a ref to a string slice
+    match query.as_str() {
+        Some(query) { // if the query is valid, return query struct
+            let query_struct = Query::new(query); // create a new query struct from input string
+            return query_struct; 
+        } 
+        None => panic!("Invalid query: {}", query), // panic if the query is invalid
+    } 
 }
 
 // Each defined rpc generates an async fn that serves the RPC
