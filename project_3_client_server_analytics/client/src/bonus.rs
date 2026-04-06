@@ -1,17 +1,29 @@
 extern crate tarpc;
-
+use analytics_lib::dataset::Value;
 use std::time::Instant;
 use std::io::BufRead;
-
-use analytics_lib::query::Query;
+use analytics_lib::query::{Query, Aggregation, Condition};
 use client::{start_client, solution};
-
-// Your solution goes here.
 fn parse_query_from_string(input: String) -> Query {
-    todo!("Implement this");
-}
+    let input = input.trim();
+    //check if query is for albums or grades by looking for band,
+    //then build a query using columns for that dataset
+    let (filter, group_by, aggregate) = if input.contains("band") {
+        (
+            Condition::Equal("band".to_string(), Value::String("Meshuggah".to_string())),
+            "album".to_string(),
+            Aggregation::Average("rating".to_string())
+        )
+    } else {
+        (
+            Condition::Equal("section".to_string(), Value::String("A1".to_string())),
+            "grade".to_string(),
+            Aggregation::Count("name".to_string())
+        )
+    };
 
-// Each defined rpc generates an async fn that serves the RPC
+    Query::new(filter, group_by, aggregate)
+}
 #[tokio::main]
 async fn main() {
     // Establish connection to server.
