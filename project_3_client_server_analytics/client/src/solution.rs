@@ -20,7 +20,12 @@ pub async fn run_hello(rpc_client: &RPCInterfaceClient) {
 pub async fn run_fast_rpc(rpc_client: &RPCInterfaceClient, query: Query) -> Dataset {
     println!("using fast_rpc");
 
-     // call server's fast_rpc,passing the query
-    let result_dataset = rpc_client.fast_rpc(Context::current(), query).await.unwrap();
+    // Call server's fast_rpc with the current tarpc Context
+    let result_dataset = rpc_client
+        .fast_rpc(Context::current(), query)
+        .await
+        .unwrap();
+
+    // Already a Dataset, no further unwrap needed
     result_dataset
 }

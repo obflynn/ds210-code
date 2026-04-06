@@ -1,5 +1,5 @@
 use analytics_lib::{dataset::Dataset, query::Query};
-
+use analytics_lib::solution::compute_query_on_dataset;
 pub fn hello() -> String {
     println!("hello called");
     return String::from("hello");
@@ -10,8 +10,9 @@ pub fn slow_rpc(input_dataset: &Dataset) -> Dataset {
     input_dataset.clone()
 }
 
-pub fn fast_rpc(input_dataset: &Dataset, _query: Query) -> Dataset {
+pub fn fast_rpc(input_dataset: &Dataset, query: Query) -> Dataset {
     println!("fast_rpc called");
-    // For now, just return a clone of the input dataset (same as slow_rpc)
-    input_dataset.clone()
+
+    // compute the querery on the server, instead of ignoring it
+    compute_query_on_dataset(input_dataset, &query)
 }
