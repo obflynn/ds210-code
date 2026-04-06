@@ -7,8 +7,8 @@ pub enum ColumnType { // serialize/deserialize derive added since ColumnType is 
     Integer,
 }
 
-#[derive(Serialize, Deserialize, Clone, PartialEq, Hash, Eq, Debug, PartialOrd, Ord)]
-pub enum Value { // serialize/deserialize derive added for the same reason listed above^^
+#[derive(Clone, Serialize, Deserialize,PartialEq, Hash, Eq, Debug, PartialOrd, Ord)]
+pub enum Value {
     String(String),
     Integer(i32),
 }
@@ -21,8 +21,8 @@ impl Value {
     }
 }
 
-#[derive(Serialize, Deserialize, Clone, PartialEq, Eq, PartialOrd, Ord)]
-pub struct Row { // serialize/deserialize derive added for the same reason listed above^^
+#[derive(Clone, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord)]
+pub struct Row {
     values: Vec<Value>,
 }
 impl Row {
