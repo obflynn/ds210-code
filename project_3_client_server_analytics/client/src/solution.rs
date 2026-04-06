@@ -22,6 +22,5 @@ pub async fn run_fast_rpc(rpc_client: &RPCInterfaceClient, query: Query) -> Data
 
      // call server's fast_rpc,passing the query
     let result_dataset = rpc_client.fast_rpc(Context::current(), query).await.unwrap();
-t
     result_dataset
 }
