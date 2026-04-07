@@ -23,8 +23,8 @@ pub async fn run_fast_rpc(rpc_client: &RPCInterfaceClient, query: Query) -> Data
     // Call server's fast_rpc with the current tarpc Context
     let result_dataset = rpc_client
         .fast_rpc(Context::current(), query)
-        .await
-        .unwrap();
+        .await // wait for the server to process the query and return the result
+        .unwrap(); // unwraps result and panics if there was an error in the query execution
 
     // Already a Dataset, no further unwrap needed
     result_dataset
