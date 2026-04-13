@@ -37,6 +37,8 @@ impl Agent for SolutionAgent {
             let (score, _, _) = SolutionAgent::solve(board, player.flip(), _time_limit);
            
             // undo_move restores board so the next move can be tested & avoids excessive memory use from cloning 
+            // function uses mutable reference to the board so it can be modified in place and restored
+            // means that a mut ref doesn't need to be explicitly written in fn solve
             board.undo_move((x, y), player);
 
             // check if score of current move beats previous best_score from previous iterations
