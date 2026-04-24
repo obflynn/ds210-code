@@ -7,12 +7,17 @@ pub struct SolutionAgent {}
 impl SolutionAgent {
     // just a placeholder so it's easier to work back and forth
       
-    fn heuristic(board: &Board) -> i32 {
+    fn heuristic(board: &Board, player: Player) -> i32 {
         // board.score adds(X)/subtracts(O) 1 for each possible row/column/diagonal win
         // only rewards for 3 in a row w/o taking into account 2 in a row + empty spot or blocking the opponent
         let spaces = board.get_cells();
         let n = spaces.len(); 
         let mut score = board.score() * 100;
+
+        match player { // match score to agent's perspective (positive score = good for X, negative score = good for O)
+            Player::X => score, 
+            Player::O => -score, 
+        };
 
         let mid_board = n/2;
         match spaces[mid_board][mid_board] { // favor center control and alter X/O score accordingly 
@@ -113,7 +118,7 @@ impl SolutionAgent {
 
         //checks whether the search has reached the maximum allowed depth
         if depth == max_depth {
-            return (SolutionAgent::heuristic(board), 0, 0); 
+            return (SolutionAgent::heuristic(board, player), 0, 0); 
         }
 
         let moves = board.moves();
