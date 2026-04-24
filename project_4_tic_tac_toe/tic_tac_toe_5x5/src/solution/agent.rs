@@ -28,13 +28,13 @@ impl SolutionAgent {
 
         for i in 0..n {
             for j in 0..n {
-                
-                let mut x = 0;
-                let mut o = 0;
-                let mut free = 0;
-                
-
+                            
                 if j+2 < n { // check rows for 2 in a row + empty spot
+
+                    let mut x = 0;
+                    let mut o = 0;
+                    let mut free = 0;
+
                     for space in [&spaces[i][j], &spaces[i][j+1], &spaces[i][j+2]] {
                         match space {
                             Cell::X => x += 1,
@@ -52,6 +52,11 @@ impl SolutionAgent {
                 }
 
                 if i+2 < n { // check columns for 2 in a row + empty spot
+
+                    let mut x = 0;
+                    let mut o = 0;
+                    let mut free = 0;
+                    
                     for space in [&spaces[i][j], &spaces[i+1][j], &spaces[i+2][j]] {
                         match space {
                             Cell::X => x += 1,
@@ -69,6 +74,11 @@ impl SolutionAgent {
                 }
 
                 if j+2 < n && i+2 < n { // check R-diagonal for 2 in a row + empty spot
+
+                    let mut x = 0;
+                    let mut o = 0;
+                    let mut free = 0;
+
                     for space in [&spaces[i][j], &spaces[i+1][j+1], &spaces[i+2][j+2]] {
                         match space {
                             Cell::X => x += 1,
@@ -86,6 +96,11 @@ impl SolutionAgent {
                 }
 
                 if j >= 2 && i+2 < n { // check L-diagonal for 2 in a row + empty spot
+
+                    let mut x = 0;
+                    let mut o = 0;
+                    let mut free = 0;
+
                     for space in [&spaces[i][j], &spaces[i+1][j-1], &spaces[i+2][j-2]] {
                         match space {
                             Cell::X => x += 1,
